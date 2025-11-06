@@ -5,17 +5,19 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,9 +25,9 @@ import java.util.Set;
 
 public class DeveloperConsoleActivity extends AppCompatActivity {
 
-    private Switch logSwitch;
-    private ListView logListView;
-    private Button clearLogsButton;
+    private SwitchMaterial logSwitch;
+    private RecyclerView logRecyclerView;
+    private MaterialButton clearLogsButton;
     private List<String> logList;
     private LogAdapter adapter;
     private SharedPreferences prefs;
@@ -35,7 +37,7 @@ public class DeveloperConsoleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_developer_console);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -43,7 +45,7 @@ public class DeveloperConsoleActivity extends AppCompatActivity {
         logList = loadLogs();
 
         logSwitch = findViewById(R.id.log_switch);
-        logListView = findViewById(R.id.log_list_view);
+        logRecyclerView = findViewById(R.id.log_recycler_view);
         clearLogsButton = findViewById(R.id.clear_logs_button);
 
         logSwitch.setChecked(prefs.getBoolean("logging_enabled", false));
@@ -56,7 +58,8 @@ public class DeveloperConsoleActivity extends AppCompatActivity {
         });
 
         adapter = new LogAdapter(logList);
-        logListView.setAdapter(adapter);
+        logRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        logRecyclerView.setAdapter(adapter);
 
         if (logList.isEmpty()) {
             Toast.makeText(this, R.string.no_logs, Toast.LENGTH_SHORT).show();
@@ -89,25 +92,26 @@ public class DeveloperConsoleActivity extends AppCompatActivity {
         Toast.makeText(this, "日志已清除", Toast.LENGTH_SHORT).show();
     }
 
-    private class LogAdapter extends ArrayAdapter<String> {
+    private class LogAdapter extends RecyclerView.Adapter<LogViewHolder> {
+
+        private List<String> logs;
 
         public LogAdapter(List<String> logs) {
-            super(DeveloperConsoleActivity.this, 0, logs);
+            this.logs = logs;
+        }
+
+        @NonNull
+        @Override
+        public LogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.log_item, parent, false);
+            return new LogViewHolder(view);
         }
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.log_item, parent, false);
-            }
-
-            final String log = getItem(position);
-
-            TextView logTextView = convertView.findViewById(R.id.log_text_view);
-            Button copyButton = convertView.findViewById(R.id.copy_button);
-
-            logTextView.setText(log);
-            copyButton.setOnClickListener(new View.OnClickListener() {
+        public void onBindViewHolder(@NonNull LogViewHolder holder, final int position) {
+            final String log = logs.get(position);
+            holder.logTextView.setText(log);
+            holder.copyButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -116,8 +120,22 @@ public class DeveloperConsoleActivity extends AppCompatActivity {
                     Toast.makeText(DeveloperConsoleActivity.this, "已复制到剪贴板", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
 
-            return convertView;
+        @Override
+        public int getItemCount() {
+            return logs.size();
+        }
+    }
+
+    private static class LogViewHolder extends RecyclerView.ViewHolder {
+        TextView logTextView;
+        MaterialButton copyButton;
+
+        public LogViewHolder(@NonNull View itemView) {
+            super(itemView);
+            logTextView = itemView.findViewById(R.id.log_text_view);
+            copyButton = itemView.findViewById(R.id.copy_button);
         }
     }
 
