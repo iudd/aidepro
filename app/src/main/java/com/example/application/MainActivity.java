@@ -11,11 +11,11 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,8 +24,8 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
     
     private WebView webView;
-    private EditText urlEditText;
-    private Button backButton, forwardButton, refreshButton, homeButton;
+    private TextInputEditText urlEditText;
+    private MaterialButton backButton, forwardButton, refreshButton, homeButton;
     
     private List<String> historyList = new ArrayList<>();
     private int currentIndex = -1;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 		
-		Toolbar toolbar = findViewById(R.id.toolbar);
+		MaterialToolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
         
         prefs = getSharedPreferences("browser_prefs", MODE_PRIVATE);
@@ -62,47 +62,22 @@ public class MainActivity extends AppCompatActivity {
         refreshButton = findViewById(R.id.refresh_button);
         homeButton = findViewById(R.id.home_button);
         
-        urlEditText.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
-                    String url = urlEditText.getText().toString().trim();
-                    if (!url.isEmpty()) {
-                        loadUrl(url);
-                    }
-                    return true;
+        urlEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_GO || 
+                (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP)) {
+                String url = urlEditText.getText().toString().trim();
+                if (!url.isEmpty()) {
+                    loadUrl(url);
                 }
-                return false;
+                return true;
             }
+            return false;
         });
         
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goBack();
-            }
-        });
-        
-        forwardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goForward();
-            }
-        });
-        
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.reload();
-            }
-        });
-        
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadUrl(HOME_URL);
-            }
-        });
+        backButton.setOnClickListener(v -> goBack());
+        forwardButton.setOnClickListener(v -> goForward());
+        refreshButton.setOnClickListener(v -> webView.reload());
+        homeButton.setOnClickListener(v -> loadUrl(HOME_URL));
     }
     
     private void initWebView() {
@@ -147,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
     
     private void addToHistory(String url) {
         if (currentIndex < historyList.size() - 1) {
-            // Remove forward history if going to new page
             historyList = historyList.subList(0, currentIndex + 1);
         }
         if (!historyList.contains(url)) {
@@ -173,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
     private void addLog(String log) {
         Set<String> logSet = prefs.getStringSet("logs", new HashSet<String>());
         List<String> logs = new ArrayList<>(logSet);
-        logs.add(0, log); // Add to front
-        if (logs.size() > 100) { // Limit to 100 logs
+        logs.add(0, log);
+        if (logs.size() > 100) {
             logs = logs.subList(0, 100);
         }
         SharedPreferences.Editor editor = prefs.edit();
