@@ -122,6 +122,14 @@ public class MainActivity extends AppCompatActivity {
                 addToHistory(url);
                 updateButtons();
             }
+            
+            @Override
+            public void onLoadResource(WebView view, String url) {
+                super.onLoadResource(view, url);
+                if (prefs.getBoolean("logging_enabled", false)) {
+                    addLog("资源加载: " + url);
+                }
+            }
         });
         
         webView.setWebChromeClient(new WebChromeClient());
@@ -132,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
             url = "https://" + url;
         }
         webView.loadUrl(url);
+        if (prefs.getBoolean("logging_enabled", false)) {
+            addLog("页面加载: " + url);
+        }
     }
     
     private void addToHistory(String url) {
@@ -156,6 +167,18 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = prefs.edit();
         Set<String> historySet = new HashSet<>(historyList);
         editor.putStringSet("history", historySet);
+        editor.apply();
+    }
+    
+    private void addLog(String log) {
+        Set<String> logSet = prefs.getStringSet("logs", new HashSet<String>());
+        List<String> logs = new ArrayList<>(logSet);
+        logs.add(0, log); // Add to front
+        if (logs.size() > 100) { // Limit to 100 logs
+            logs = logs.subList(0, 100);
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putStringSet("logs", new HashSet<>(logs));
         editor.apply();
     }
     
@@ -196,6 +219,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_history) {
             Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (item.getItemId() == R.id.menu_developer_console) {
+            Intent intent = new Intent(this, DeveloperConsoleActivity.class);
             startActivity(intent);
             return true;
         }
