@@ -1,7 +1,11 @@
 package com.example.application;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -13,7 +17,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     
@@ -24,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private List<String> historyList = new ArrayList<>();
     private int currentIndex = -1;
     private static final String HOME_URL = "https://www.baidu.com";
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +40,18 @@ public class MainActivity extends AppCompatActivity {
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
         
+        prefs = getSharedPreferences("browser_prefs", MODE_PRIVATE);
+        loadHistory();
+        
         initViews();
         initWebView();
-        loadUrl(HOME_URL);
+        
+        String url = getIntent().getStringExtra("url");
+        if (url != null) {
+            loadUrl(url);
+        } else {
+            loadUrl(HOME_URL);
+        }
     }
     
     private void initViews() {
@@ -123,8 +139,24 @@ public class MainActivity extends AppCompatActivity {
             // Remove forward history if going to new page
             historyList = historyList.subList(0, currentIndex + 1);
         }
-        historyList.add(url);
+        if (!historyList.contains(url)) {
+            historyList.add(url);
+        }
         currentIndex = historyList.size() - 1;
+        saveHistory();
+    }
+    
+    private void loadHistory() {
+        Set<String> historySet = prefs.getStringSet("history", new HashSet<String>());
+        historyList.addAll(historySet);
+        currentIndex = historyList.size() - 1;
+    }
+    
+    private void saveHistory() {
+        SharedPreferences.Editor editor = prefs.edit();
+        Set<String> historySet = new HashSet<>(historyList);
+        editor.putStringSet("history", historySet);
+        editor.apply();
     }
     
     private void goBack() {
@@ -140,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
     
     private void goForward() {
         if (webView.canGoForward()) {
-            webView.canGoForward();
+            webView.goForward();
         } else if (currentIndex < historyList.size() - 1) {
             currentIndex++;
             loadUrl(historyList.get(currentIndex));
@@ -152,6 +184,22 @@ public class MainActivity extends AppCompatActivity {
     private void updateButtons() {
         backButton.setEnabled(webView.canGoBack() || currentIndex > 0);
         forwardButton.setEnabled(webView.canGoForward() || currentIndex < historyList.size() - 1);
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_history) {
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
     
     @Override
