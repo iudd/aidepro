@@ -19,4 +19,67 @@
 
 	</com.google.android.material.appbar.AppBarLayout>
 
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1">
+
+		<EditText
+			android:id="@+id/url_edit_text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="输入网址"
+			android:inputType="textUri"
+			android:imeOptions="actionGo"
+			android:padding="8dp" />
+
+		<WebView
+			android:id="@+id/web_view"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_below="@id/url_edit_text" />
+
+	</RelativeLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:padding="8dp"
+		android:background="@color/colorPrimaryDark">
+
+		<Button
+			android:id="@+id/back_button"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="后退"
+			android:textColor="@android:color/white" />
+
+		<Button
+			android:id="@+id/forward_button"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="前进"
+			android:textColor="@android:color/white" />
+
+		<Button
+			android:id="@+id/refresh_button"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="刷新"
+			android:textColor="@android:color/white" />
+
+		<Button
+			android:id="@+id/home_button"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="主页"
+			android:textColor="@android:color/white" />
+
+	</LinearLayout>
+
 </LinearLayout>
