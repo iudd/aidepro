@@ -32,6 +32,10 @@
             android:name=".HistoryActivity"
             android:label="@string/history_title" />
 
+        <activity
+            android:name=".DeveloperConsoleActivity"
+            android:label="@string/developer_console" />
+
         <meta-data
             android:name="android.max_aspect"
             android:value="4.0"/>
