@@ -30,6 +30,18 @@
    - 日志查看和复制功能
    - 清除日志
 
+5. **Material Design UI**
+   - 现代Material Design界面
+   - 响应式布局
+   - 卡片式设计
+   - 紫色主题色
+
+6. **AndroidX迁移**
+   - 完全迁移到AndroidX
+   - 支持Android 5.0+ (API 21)
+   - 最新Material Components 1.10.0
+   - 编译SDK 34
+
 ### 🚧 开发计划
 - [ ] 书签管理（添加/删除/查看书签）
 - [ ] 设置页面（JavaScript开关、清除缓存等）
@@ -37,11 +49,11 @@
 - [ ] 性能优化和兼容性测试
 
 ## 技术栈
-- **语言**：Java
-- **UI框架**：Android View系统 + WebView
+- **语言**：Java (纯Java，无Kotlin)
+- **UI框架**：AndroidX + Material Components
 - **数据存储**：SharedPreferences
 - **网络**：Android WebView
-- **架构**：Activity + WebView
+- **架构**：Activity + RecyclerView
 
 ## 如何使用
 1. 启动应用，默认加载百度首页
@@ -52,13 +64,20 @@
 6. 在开发者控制台开启日志记录，查看和复制网络请求信息
 
 ## 构建要求
-- Android Studio
-- 最小SDK：16 (Android 4.1)
-- 目标SDK：26 (Android 8.0)
-- Gradle版本：7.0.2
+- Android Studio Arctic Fox或更高版本
+- 最小SDK：21 (Android 5.0)
+- 目标SDK：34 (Android 14)
+- Gradle版本：8.0+
 
 ## 权限
 - INTERNET：用于网页加载
+
+## 迁移说明
+项目已完全迁移到AndroidX：
+- 所有依赖更新为AndroidX版本
+- 代码导入语句更新
+- 支持最新Android版本
+- 保持向后兼容性
 
 ---
 
@@ -137,7 +156,7 @@
 
 ### 技术栈
 - 语言：Java
-- UI框架：Android View系统 + WebView
+- UI框架：AndroidX + Material Components
 - 数据存储：SharedPreferences (简单数据) + SQLite (历史记录)
 - 网络：Android WebView + HttpURLConnection
 
